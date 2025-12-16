@@ -127,7 +127,7 @@ PetriSpot is FOSS licensed under the GPL v3.
 
 - Yann Thierry-Mieg (LIP6, Sorbonne Université)
 - Etienne Renault (LRDE, Epita)
-- Soufiane El Mahdi (Master 1 student, Sorbonne Université)
+- Soufiane El Mouahid (Master 1 student, Sorbonne Université)
 
 ## Contributing
 
