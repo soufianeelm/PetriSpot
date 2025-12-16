@@ -150,7 +150,7 @@ public:
    */
   bool get (size_t key, bool valueIfKeyNotFound) const
   {
-    int i = binarySearch (mKeys, mSize, key);
+    ssize_t i = binarySearch (mKeys, mSize, key);
     if (i < 0) {
       return valueIfKeyNotFound;
     } else {
@@ -162,7 +162,7 @@ public:
    */
   void remove (size_t key)
   {
-    int i = binarySearch (mKeys, mSize, key);
+    ssize_t i = binarySearch (mKeys, mSize, key);
     if (i >= 0) {
       removeAt (i);
     }
@@ -182,7 +182,7 @@ public:
    */
   void put (size_t key, bool v)
   {
-    int i = binarySearch (mKeys, mSize, key);
+    ssize_t i = binarySearch (mKeys, mSize, key);
     if (i >= 0) {
       if (v) {
         return;
@@ -224,7 +224,7 @@ public:
    * specified key, or a negative number if the specified
    * key is not mapped.
    */
-  int indexOfKey (size_t key)
+  ssize_t indexOfKey (size_t key)
   {
     return binarySearch (mKeys, mSize, key);
   }
@@ -266,17 +266,6 @@ public:
     size_t *copiedKeys = new size_t[mSize];
     std::copy (mKeys, mKeys + mSize, copiedKeys);
     return copiedKeys;
-  }
-  /**
-   * Provides direct access to keys, client should not modify.
-   * @return an array of sorted integers corresponding to true entries of this BoolArray
-   */
-  size_t* refKeys ()
-  {
-    if (size () == 0) {
-      return new size_t[0];
-    }
-    return mKeys;
   }
 
   size_t hash () const
@@ -355,6 +344,37 @@ public:
     }
   }
 
+  size_t restrict(const SparseBoolArray& other) {
+      if (mSize == 0) return 0;
+      if (other.mSize == 0) { clear(); return 0; }
+
+      size_t writePos = 0;
+      size_t i = 0;
+      size_t j = 0;
+      const size_t BINARY_THRESHOLD = 16;  // Tune later
+
+      while (i < mSize && j < other.mSize) {
+          size_t keyThis = mKeys[i];
+          size_t keyOther = other.mKeys[j];
+          if (keyThis == keyOther) {
+              if (writePos != i) mKeys[writePos] = keyThis;
+              writePos++; i++; j++;
+          } else if (keyThis < keyOther) {
+              i++;
+          } else {  // keyThis > keyOther
+              if (other.mSize - j > BINARY_THRESHOLD) {
+                  ssize_t newJ = binarySearch(other.mKeys, keyThis, j, other.mSize - 1);
+                  j = (newJ >= 0) ? newJ : ~newJ;
+                  if (j >= other.mSize) break;
+              } else {
+                  j++;
+              }
+          }
+      }
+      mSize = writePos;
+      return mSize;
+  }
+
   static SparseBoolArray unionOperation (const SparseBoolArray &a,
                                          const SparseBoolArray &b)
   {
@@ -403,19 +423,19 @@ public:
     return res;
   }
 private:
-  static int binarySearch (const size_t *const array, size_t sz, size_t value)
+  static ssize_t binarySearch (const size_t *const array, size_t sz, size_t value)
   {
-    int lo = 0;
-    int hi = sz - 1;
+    ssize_t lo = 0;
+    ssize_t hi = sz - 1;
 
     return binarySearch (array, value, lo, hi);
   }
   // This is Arrays.binarySearch(), but doesn't do any argument validation.
-  static int binarySearch (const size_t *const array, size_t value, int lo,
-                           int hi)
+  static ssize_t binarySearch (const size_t *const array, size_t value, ssize_t lo,
+                           ssize_t hi)
   {
     while (lo <= hi) {
-      int mid = (lo + hi) >> 1;
+      ssize_t mid = (lo + hi) >> 1;
       size_t midVal = array[mid];
       if (midVal < value) {
         lo = mid + 1;

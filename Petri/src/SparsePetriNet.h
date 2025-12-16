@@ -88,7 +88,7 @@ template<typename T>
       return sum;
     }
 
-    void setMarking (int pid, T val)
+    void setMarking (size_t pid, T val)
     {
       marks[pid] = val;
     }
@@ -101,6 +101,19 @@ template<typename T>
     const std::vector<std::string>& getPnames () const
     {
       return pnames;
+    }
+
+    void normalizeNames ()
+    {
+      // Normalize place names
+      for (size_t i = 0; i < pnames.size (); i++) {
+        pnames[i] = "p" + std::to_string (i);
+      }
+
+      // Normalize transition names
+      for (size_t i = 0; i < tnames.size (); i++) {
+        tnames[i] = "t" + std::to_string (i);
+      }
     }
 
     MatrixCol<T>& getFlowPT ()

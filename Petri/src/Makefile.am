@@ -1,5 +1,7 @@
 noinst_PROGRAMS = petri32 petri64 petri128
 
+AM_LDFLAGS = $(STATICFLAGS)
+
 if WITH_LIBDDD_PATH
 LIBDDD_CPP=-I$(LIBDDD_ROOT)/include
 LIBDDD_PATH=$(LIBDDD_ROOT)/lib/libDDD.a
@@ -22,12 +24,12 @@ else
 LIBEXPAT_LINK=-lexpat
 endif
 
-AM_CPPFLAGS = $(LIBSPOT_CPP) $(LIBDDD_CPP)  -g -O2 -Wnarrowing -Wextra -Wall $(LIBEXPAT_CPP)
-AM_CXXFLAGS = -g -O2 -Wall -Wconversion -Wnarrowing -Wextra 
+AM_CPPFLAGS = $(LIBSPOT_CPP) $(LIBDDD_CPP)  -g -DNDEBUG -O2 -Wnarrowing -Wextra -Wall $(LIBEXPAT_CPP)
+AM_CXXFLAGS = -g -O2 -DNDEBUG -Wall -Wconversion -Wnarrowing -Wextra 
 
-LDADDFLAGS = $(LIBSPOT_PATH) $(LIBSPOT_LINK) $(LIBDDD_PATH)  $(LIBEXPAT_PATH) $(LIBEXPAT_LINK) 
+LDADDFLAGS = $(LIBSPOT_PATH) $(LIBSPOT_LINK) $(LIBDDD_PATH)  $(LIBEXPAT_PATH) $(LIBEXPAT_LINK)
 
-petri_SOURCES=Arithmetic.hpp Petri.cpp SparseArray.h MatrixCol.h SparsePetriNet.h Walker.h PTNetHandler.h PTNetLoader.h SparseBoolArray.h InvariantMiddle.h InvariantCalculator.h 
+petri_SOURCES=Arithmetic.hpp Petri.cpp SparseArray.h MatrixCol.h SparsePetriNet.h Walker.h PTNetHandler.h PTNetLoader.h SparseBoolArray.h InvariantMiddle.h InvariantCalculator.h InvariantHelper.h RowSigns.h InvariantsTrivial.h FlowPrinter.h
 
 # Rules for each program
 petri32_SOURCES = $(petri_SOURCES)
